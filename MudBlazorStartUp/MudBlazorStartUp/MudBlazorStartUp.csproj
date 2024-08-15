@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-MudBlazorStartUp-cb661c7f-59d1-4c54-ae67-0041b9e4ff97</UserSecretsId>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\MudBlazorStartUp.Client\MudBlazorStartUp.Client.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.*" />
+    <PackageReference Include="Extensions.MudBlazor.StaticInput" Version="2.*" />
+  </ItemGroup>
+
+</Project>

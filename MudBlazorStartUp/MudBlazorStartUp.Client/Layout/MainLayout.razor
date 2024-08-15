@@ -1,0 +1,86 @@
+﻿@using MudBlazorStartUp.Client.Services
+@inherits LayoutComponentBase
+@inject IDarkModeService DarkModeService
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
+
+<MudThemeProvider IsDarkMode="IsDarkMode"/>
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Edge="Edge.End" Color="MudBlazor.Color.Inherit" OnClick="@DarkModeSwitched" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent Class="mt-16 pa-4">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    private PersistingComponentStateSubscription persistingSubscription;
+
+    protected async override Task OnInitializedAsync()
+    {
+        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistIsDarkMode);
+
+        if (!ApplicationState.TryTakeFromJson<bool>("IsDarkMode", out var isDarkMode))
+        {
+            IsDarkMode = await DarkModeService.GetDarkMode();
+        }
+        else
+        {
+            IsDarkMode = isDarkMode;
+        }
+
+        IsDarkMode = await DarkModeService.GetDarkMode();
+        await base.OnInitializedAsync();
+    }
+
+    private bool IsDarkMode { get; set; }
+
+    public string DarkLightModeButtonIcon => IsDarkMode switch
+    {
+        true => Icons.Material.Rounded.DarkMode,
+        false => Icons.Material.Outlined.LightMode,
+    };
+
+    private void DarkModeSwitched(MouseEventArgs args)
+    {
+        IsDarkMode = !IsDarkMode;
+    }
+
+    private Task PersistIsDarkMode()
+    {
+        ApplicationState.PersistAsJson("IsDarkMode", IsDarkMode);
+
+        return Task.CompletedTask;
+    }
+
+    private bool _drawerOpen = true;
+
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    public void Dispose()
+    {
+        persistingSubscription.Dispose();
+    }
+}
+
+

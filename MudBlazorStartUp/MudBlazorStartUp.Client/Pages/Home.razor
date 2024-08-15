@@ -1,0 +1,73 @@
+﻿@page "/"
+@using MudBlazorStartUp.Client.Services
+@inject IDarkModeService DarkModeService
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
+
+<MudThemeProvider IsDarkMode="IsDarkMode"/>
+
+<div class="ma-5">
+    <MudIconButton Class="mr-1 mt-1 align-self-end" Icon="@(DarkLightModeButtonIcon)" Color="MudBlazor.Color.Inherit" OnClick="@DarkModeSwitched" />
+
+    <PageTitle>Home</PageTitle>
+
+    <MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
+    <MudText Class="mb-8">Welcome to your new app, powered by MudBlazor and the .NET 8 Template!</MudText>
+
+    <div class="d-flex gap-2">
+        <MudButton Href="/counter"
+                   Variant="Variant.Filled"
+                   Color="MudBlazor.Color.Primary"
+                   Size="MudBlazor.Size.Large">
+            Navigate to counter
+        </MudButton>
+    </div>
+
+</div>
+
+@code{
+    private PersistingComponentStateSubscription persistingSubscription;
+
+    protected async override Task OnInitializedAsync()
+    {
+        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistIsDarkMode);
+
+        if (!ApplicationState.TryTakeFromJson<bool>("IsDarkMode", out var isDarkMode))
+        {
+            IsDarkMode = await DarkModeService.GetDarkMode();
+        }
+        else
+        {
+            IsDarkMode = isDarkMode;
+        }
+
+        IsDarkMode = await DarkModeService.GetDarkMode();
+        await base.OnInitializedAsync();
+    }
+
+    public string DarkLightModeButtonIcon => IsDarkMode switch
+    {
+        true => Icons.Material.Rounded.DarkMode,
+        false => Icons.Material.Outlined.LightMode,
+    };
+
+    private bool IsDarkMode { get; set; }
+
+    private async Task DarkModeSwitched(MouseEventArgs args)
+    {
+        IsDarkMode = !IsDarkMode;
+        await DarkModeService.SetDarkMode(IsDarkMode);
+    }
+
+    private Task PersistIsDarkMode()
+    {
+        ApplicationState.PersistAsJson("IsDarkMode", IsDarkMode);
+
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        persistingSubscription.Dispose();
+    }
+}
